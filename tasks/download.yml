@@ -1,0 +1,28 @@
+---
+
+- name: Create downloads folder
+  file:
+    state: directory
+    path: "{{ item }}"
+  with_items:
+    - "~/.nextcloud/"
+
+- name: Download nextcloud
+  get_url:
+    url: "{{ nextcloud_download_url }}"
+    sha256sum: "{{ nextcloud_download_sha256 }}"
+    dest: "~/.nextcloud/{{ nextcloud_download_filename }}"
+  register: nextcloud_download
+
+- name: Extract nextcloud
+  unarchive:
+    src: "{{ nextcloud_download.dest }}"
+    creates: "{{ nextcloud_path }}version.php"
+    dest: "/srv/"
+    owner: "{{ nextcloud_path_owner }}"
+    group: "{{ nextcloud_path_group }}"
+    mode: 0775
+    remote_src: yes
+  # when: installed.stat.exists == False
+
+

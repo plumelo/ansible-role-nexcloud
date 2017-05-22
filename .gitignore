@@ -1,0 +1,6 @@
+tests/roles/*
+!tests/roles/galaxy.yml
+!tests/roles/plumelo.nextcloud
+
+.vagrant/
+*.retry

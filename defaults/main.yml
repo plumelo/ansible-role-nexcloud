@@ -1,0 +1,36 @@
+---
+#Download
+nextcloud_version: "11.0.3"
+nextcloud_download_filename: "nextcloud-{{ nextcloud_version}}.zip"
+nextcloud_download_url: "https://download.nextcloud.com/server/releases/{{nextcloud_download_filename }}"
+nextcloud_download_sha256: "d23095a517cbd547fb29bccde71e6d9faaa394b71fa89329f42cfa28b6aaffd3"
+
+#Folders
+nextcloud_path: "/srv/nextcloud/"
+nextcloud_path_owner: www-data
+nextcloud_path_group: www-data
+
+# [CONFIG]
+nextcloud_domain: "my.super.domain"
+nextcloud_admin_pass: "admin"
+nextcloud_database: "pgsql"
+nextcloud_database_name: "nextcloud"
+nextcloud_database_user: "nextcloud"
+nextcloud_database_pass: "nextcloud"
+nextcloud_admin_user: "admin"
+nextcloud_admin_pass: "admin"
+nextcloud_hosts:
+  - 127.0.0.1
+
+# [APPS]
+nextcloud_apps:
+  - name: "direct_menu"
+    src: "https://github.com/juliushaertl/direct_menu.git"
+
+  - name: "mail"
+    src: "https://github.com/nextcloud/mail.git"
+
+
+# [SYSTEM]
+nextcloud_websrv_user: "www-data"
+nextcloud_websrv_group: "www-data"

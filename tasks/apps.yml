@@ -1,0 +1,8 @@
+---
+- name: Clone apps
+  git:
+    accept_hostkey: yes
+    repo: "{{ item.src }}"
+    dest: "/srv/nextcloud/apps/{{ item.name }}"
+    # clone: no
+  with_items: "{{ nextcloud_apps }}"

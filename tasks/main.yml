@@ -1,0 +1,6 @@
+---
+
+- include: deps.yml
+- include: download.yml
+- include: install.yml
+- include: apps.yml

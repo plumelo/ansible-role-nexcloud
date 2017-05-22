@@ -1,0 +1,91 @@
+---
+
+- include_role: name=ANXS.postgresql private=true
+  vars:
+    postgresql_users:
+      - name: nextcloud
+        pass: nextcloud
+        encrypted: no
+    postgresql_databases:
+      - name: nextcloud
+        owner: nextcloud
+
+- include_role: name=nbz4live.php-fpm private=true
+  vars:
+    php_fpm_version: 7.1
+    php_fpm_apt_packages:
+      - php7.1-fpm
+      - php7.1-pgsql
+      - php7.1-gd
+      - php7.1-xml
+      - php7.1-zip
+      - php7.1-curl
+      - php7.1-mbstring
+    php_fpm_pools:
+      - name: nextcloud
+        user: www-data
+        group: www-data
+        listen: 9001
+        chdir: /
+
+- name: check nextcloud status
+  become: true
+  become_user: www-data
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ status
+  register: nextcloud_occ_status
+  changed_when: no
+
+- debug:
+    var: nextcloud_occ_status
+
+- name: install nextcloud
+  become: true
+  become_user: www-data
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ maintenance:install --database "{{ nextcloud_database }}" --database-name "{{ nextcloud_database_name }}"  --database-user "{{ nextcloud_database_user }}" --database-pass "{{ nextcloud_database_pass }}" --admin-user "{{ nextcloud_admin_user }}" --admin-pass "{{ nextcloud_admin_pass }}"
+  when: '"installed: true" not in nextcloud_occ_status.stdout'
+
+- name: Get trusted domains
+  become: true
+  become_user: www-data
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ config:system:get trusted_domains
+  register: nextcloud_occ_domains
+
+- name: add domain as trusted
+  become: true
+  become_user: www-data
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ config:system:set trusted_domains 1 --value={{ item }}
+  when: '"{{ item }}" not in nextcloud_occ_domains.stdout'
+  with_items: "{{nextcloud_hosts }}"
+
+- include_role: name=jdauphant.nginx private=true
+  vars:
+    nginx_sites:
+      nextcloud:
+
+         - server_name {{nextcloud_hosts|join(' ') }}
+         - root "/srv/nextcloud/"
+         - index index.html index.htm index.php
+         - gzip on
+         - gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript image/x-icon image/bmp
+         - |
+           location / {
+             try_files $uri $uri/ /index.php$is_args$args;
+           }
+         - |
+           location ~ \.php$ {
+             include snippets/fastcgi-php.conf;
+             fastcgi_pass localhost:9001;
+           }
+         - |
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+              expires max;
+              log_not_found off;
+            }
