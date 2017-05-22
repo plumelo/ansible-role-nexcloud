@@ -1,14 +1,13 @@
 ---
-
 - include_role: name=ANXS.postgresql private=true
   vars:
     postgresql_users:
-      - name: nextcloud
-        pass: nextcloud
+      - name: "{{ nextcloud_database_user }}"
+        pass: "{{ nextcloud_database_pass }}"
         encrypted: no
     postgresql_databases:
-      - name: nextcloud
-        owner: nextcloud
+      - name: "{{ nextcloud_database_name }}"
+        owner: "{{ nextcloud_database_user }}"
 
 - include_role: name=nbz4live.php-fpm private=true
   vars:
@@ -23,26 +22,23 @@
       - php7.1-mbstring
     php_fpm_pools:
       - name: nextcloud
-        user: www-data
-        group: www-data
+        user: "{{ nextcloud_websrv_user }}"
+        group: "{{ nextcloud_websrv_user }}"
         listen: 9001
         chdir: /
 
 - name: check nextcloud status
   become: true
-  become_user: www-data
+  become_user: "{{ nextcloud_websrv_user }}"
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ status
   register: nextcloud_occ_status
   changed_when: no
 
-- debug:
-    var: nextcloud_occ_status
-
 - name: install nextcloud
   become: true
-  become_user: www-data
+  become_user: "{{ nextcloud_websrv_user }}"
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ maintenance:install --database "{{ nextcloud_database }}" --database-name "{{ nextcloud_database_name }}"  --database-user "{{ nextcloud_database_user }}" --database-pass "{{ nextcloud_database_pass }}" --admin-user "{{ nextcloud_admin_user }}" --admin-pass "{{ nextcloud_admin_pass }}"
@@ -50,7 +46,7 @@
 
 - name: Get trusted domains
   become: true
-  become_user: www-data
+  become_user: "{{ nextcloud_websrv_user }}"
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:get trusted_domains
@@ -58,7 +54,7 @@
 
 - name: add domain as trusted
   become: true
-  become_user: www-data
+  become_user: "{{ nextcloud_websrv_user }}"
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:set trusted_domains 1 --value={{ item }}
@@ -69,7 +65,6 @@
   vars:
     nginx_sites:
       nextcloud:
-
          - server_name {{nextcloud_hosts|join(' ') }}
          - root "/srv/nextcloud/"
          - index index.html index.htm index.php
