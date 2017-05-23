@@ -27,10 +27,13 @@ nextcloud_apps:
   - name: "direct_menu"
     src: "https://github.com/juliushaertl/direct_menu.git"
 
-  - name: "mail"
-    src: "https://github.com/nextcloud/mail.git"
+  # - name: "mail"
+  #   src: "https://github.com/nextcloud/mail.git"
 
 
 # [SYSTEM]
 nextcloud_websrv_user: "www-data"
 nextcloud_websrv_group: "www-data"
+
+# [php]
+php_ver: "7.1"

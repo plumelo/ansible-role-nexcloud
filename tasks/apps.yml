@@ -4,5 +4,12 @@
     accept_hostkey: yes
     repo: "{{ item.src }}"
     dest: "/srv/nextcloud/apps/{{ item.name }}"
-    # clone: no
+  with_items: "{{ nextcloud_apps }}"
+
+- name: Enable apps
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ app:enable {{ item.name }}
   with_items: "{{ nextcloud_apps }}"
