@@ -1,0 +1,25 @@
+---
+
+- include_role: name=jdauphant.nginx private=true
+  vars:
+    nginx_sites:
+      nextcloud:
+         - server_name {{ nextcloud_hosts|join(' ') }}
+         - root "/srv/nextcloud/"
+         - index index.html index.htm index.php
+         - gzip on
+         - gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript image/x-icon image/bmp
+         - |
+           location / {
+             try_files $uri $uri/ /index.php$is_args$args;
+           }
+         - |
+           location ~ \.php$ {
+             include snippets/fastcgi-php.conf;
+             fastcgi_pass localhost:9001;
+           }
+         - |
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+              expires max;
+              log_not_found off;
+            }

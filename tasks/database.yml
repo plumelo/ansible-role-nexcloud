@@ -1,0 +1,11 @@
+---
+- include_role: name=ANXS.postgresql private=true
+  vars:
+    postgresql_users:
+      - name: "{{ nextcloud_database_user }}"
+        pass: "{{ nextcloud_database_pass }}"
+        encrypted: no
+    postgresql_databases:
+      - name: "{{ nextcloud_database_name }}"
+        owner: "{{ nextcloud_database_user }}"
+  when: nextcloud_database == 'pgsql'
