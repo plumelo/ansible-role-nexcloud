@@ -2,5 +2,5 @@
 # handlers file for ./
 - name: reload php-fpm
   service:
-    name: php{{ php_ver }}-fpm
+    name: php{{ nextcloud_php_version }}-fpm
     state: reloaded

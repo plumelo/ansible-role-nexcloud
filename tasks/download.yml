@@ -14,6 +14,15 @@
     dest: "~/.nextcloud/{{ nextcloud_download_filename }}"
   register: nextcloud_download
 
+- name: Create folders
+  file:
+    state: directory
+    owner: "{{ nextcloud_path_owner }}"
+    group: "{{ nextcloud_path_group }}"
+    path: "{{ item }}"
+  with_items:
+    - "{{ nextcloud_path }}"
+
 - name: Extract nextcloud
   unarchive:
     src: "{{ nextcloud_download.dest }}"
@@ -23,6 +32,4 @@
     group: "{{ nextcloud_path_group }}"
     mode: 0775
     remote_src: yes
-  # when: installed.stat.exists == False
-
 

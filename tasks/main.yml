@@ -1,6 +1,23 @@
 ---
+- name: Install prerequsites
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - zip
+    - unzip
+    - acl
+    - git
 
-- include: deps.yml
 - include: download.yml
+
+- include: php.yml
+  when: nextcloud_install_php
+
+- include: database.yml
+  when: nextcloud_install_database
+
+- include: nginx.yml
+  when: nextcloud_install_nginx
+
 - include: install.yml
-- include: apps.yml

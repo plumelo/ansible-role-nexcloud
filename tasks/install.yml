@@ -1,31 +1,4 @@
 ---
-- include_role: name=ANXS.postgresql private=true
-  vars:
-    postgresql_users:
-      - name: "{{ nextcloud_database_user }}"
-        pass: "{{ nextcloud_database_pass }}"
-        encrypted: no
-    postgresql_databases:
-      - name: "{{ nextcloud_database_name }}"
-        owner: "{{ nextcloud_database_user }}"
-
-- include_role: name=nbz4live.php-fpm private=true
-  vars:
-    php_fpm_version: "{{ php_ver }}"
-    php_fpm_apt_packages:
-      - "php{{ php_ver }}-fpm"
-      - "php{{ php_ver }}-pgsql"
-      - "php{{ php_ver }}-gd"
-      - "php{{ php_ver }}-xml"
-      - "php{{ php_ver }}-zip"
-      - "php{{ php_ver }}-curl"
-      - "php{{ php_ver }}-mbstring"
-    php_fpm_pools:
-      - name: nextcloud
-        user: "{{ nextcloud_websrv_user }}"
-        group: "{{ nextcloud_websrv_user }}"
-        listen: 9001
-        chdir: /
 
 - name: check nextcloud status
   become: true
@@ -59,29 +32,19 @@
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:set trusted_domains 1 --value={{ item }}
   when: '"{{ item }}" not in nextcloud_occ_domains.stdout'
-  with_items: "{{nextcloud_hosts }}"
+  with_items: "{{ nextcloud_hosts }}"
 
-- include_role: name=jdauphant.nginx private=true
-  vars:
-    nginx_sites:
-      nextcloud:
-         - server_name {{ nextcloud_hosts|join(' ') }}
-         - root "/srv/nextcloud/"
-         - index index.html index.htm index.php
-         - gzip on
-         - gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript image/x-icon image/bmp
-         - |
-           location / {
-             try_files $uri $uri/ /index.php$is_args$args;
-           }
-         - |
-           location ~ \.php$ {
-             include snippets/fastcgi-php.conf;
-             fastcgi_pass localhost:9001;
-           }
-         - |
-            location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
-              expires max;
-              log_not_found off;
-            }
-  notify: reload php-fpm
+- name: Clone apps
+  git:
+    accept_hostkey: yes
+    repo: "{{ item.src }}"
+    dest: "/srv/nextcloud/apps/{{ item.name }}"
+  with_items: "{{ nextcloud_apps }}"
+
+- name: Enable apps
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ app:enable {{ item.name }}
+  with_items: "{{ nextcloud_apps }}"

@@ -6,3 +6,12 @@
     - role: plumelo.nextcloud
       nextcloud_hosts:
         - nextcloud.local
+      # nextcloud_install_database: no
+      nextcloud_apps:
+        - name: "direct_menu"
+          src: "https://github.com/juliushaertl/direct_menu.git"
+          # config:
+          #    enable_avatars: true
+
+          #   - type: string
+          #     name: value
