@@ -5,8 +5,8 @@ nextcloud_websrv_group: www-data
 
 # Download
 nextcloud_version: "11.0.3"
-nextcloud_download_filename: "nextcloud-{{ nextcloud_version}}.zip"
-nextcloud_download_url: "https://download.nextcloud.com/server/releases/{{nextcloud_download_filename }}"
+nextcloud_download_filename: "nextcloud-{{ nextcloud_version }}.zip"
+nextcloud_download_url: "https://download.nextcloud.com/server/releases/{{ nextcloud_download_filename }}"
 nextcloud_download_sha256: "d23095a517cbd547fb29bccde71e6d9faaa394b71fa89329f42cfa28b6aaffd3"
 
 # Folders

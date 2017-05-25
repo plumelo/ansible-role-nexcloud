@@ -1,6 +1,6 @@
 ---
 
-- name: check nextcloud status
+- name: Check nextcloud status
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
   args:
@@ -9,7 +9,7 @@
   register: nextcloud_occ_status
   changed_when: no
 
-- name: install nextcloud
+- name: Install nextcloud
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
   args:
@@ -25,7 +25,7 @@
   shell: php occ config:system:get trusted_domains
   register: nextcloud_occ_domains
 
-- name: add domain as trusted
+- name: Add domain as trusted
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
   args:
@@ -69,7 +69,7 @@
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
   environment:
-    OC_PASS: "{{item.pass}}"
+    OC_PASS: "{{ item.pass }}"
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ user:add --display-name={{ item.name }} --password-from-env --group={{ item.group|default('users')  }} {{ item.name }}
