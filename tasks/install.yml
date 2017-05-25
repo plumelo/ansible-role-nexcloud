@@ -57,6 +57,14 @@
   shell: php occ config:system:set "{{ item.name }}" --value={{ item }}
   with_items: "{{ nextcloud_config }}"
 
+- name: Get users
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ user:list
+  register: nextcloud_occ_users
+
 - name: Add user
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
@@ -65,4 +73,5 @@
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ user:add --display-name={{ item.name }} --password-from-env --group={{ item.group|default('users')  }} {{ item.name }}
+  when: '"{{ item.name }}" not in nextcloud_occ_users.stdout'
   with_items: "{{ nextcloud_users }}"
