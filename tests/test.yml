@@ -10,8 +10,12 @@
       nextcloud_apps:
         - name: "direct_menu"
           src: "https://github.com/juliushaertl/direct_menu.git"
-          # config:
-          #    enable_avatars: true
 
-          #   - type: string
-          #     name: value
+      nextcloud_config:
+        - name: "enable_avatars"
+          value: true
+          # type: boolean
+
+      nextcloud_users:
+        - name: "newname"
+          pass: "777pass555"

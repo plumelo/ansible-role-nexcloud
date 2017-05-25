@@ -48,3 +48,21 @@
     chdir: "{{ nextcloud_path }}"
   shell: php occ app:enable {{ item.name }}
   with_items: "{{ nextcloud_apps }}"
+
+- name: Config nextcloud
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ config:system:set "{{ item.name }}" --value={{ item }}
+  with_items: "{{ nextcloud_config }}"
+
+- name: Add user
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  environment:
+    OC_PASS: "{{item.pass}}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ user:add --display-name={{ item.name }} --password-from-env --group={{ item.group|default('users')  }} {{ item.name }}
+  with_items: "{{ nextcloud_users }}"
