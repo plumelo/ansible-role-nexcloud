@@ -24,6 +24,7 @@
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:get trusted_domains
   register: nextcloud_occ_domains
+  changed_when: no
 
 - name: Add domain as trusted
   become: true
@@ -54,7 +55,7 @@
   become_user: "{{ nextcloud_websrv_user }}"
   args:
     chdir: "{{ nextcloud_path }}"
-  shell: php occ config:system:set "{{ item.name }}" --value={{ item }}
+  shell: php occ config:system:set "{{ item.name }}" --value={{ item.value }}
   with_items: "{{ nextcloud_config }}"
 
 - name: Get users
@@ -64,6 +65,7 @@
     chdir: "{{ nextcloud_path }}"
   shell: php occ user:list
   register: nextcloud_occ_users
+  changed_when: no
 
 - name: Add user
   become: true

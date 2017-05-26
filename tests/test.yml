@@ -6,15 +6,14 @@
     - role: plumelo.nextcloud
       nextcloud_hosts:
         - nextcloud.local
-      # nextcloud_install_database: no
+
       nextcloud_apps:
-        - name: "direct_menu"
-          src: "https://github.com/juliushaertl/direct_menu.git"
+        - name: "calendar"
+          src: "https://github.com/nextcloud/calendar.git"
 
       nextcloud_config:
-        - name: "enable_avatars"
-          value: true
-          # type: boolean
+        - name: "htaccess.RewriteBase"
+          value: '/'
 
       nextcloud_users:
         - name: "newname"
