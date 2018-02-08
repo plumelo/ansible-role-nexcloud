@@ -42,12 +42,23 @@
     dest: "/srv/nextcloud/apps/{{ item.name }}"
   with_items: "{{ nextcloud_apps }}"
 
+- name: Register apps
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ app:list --output json
+  register: nextcloud_apps_status
+  changed_when: False
+
 - name: Enable apps
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ app:enable {{ item.name }}
+  when: item.name in (nextcloud_apps_status.stdout|from_json).disabled.keys()
+
   with_items: "{{ nextcloud_apps }}"
 
 - name: Config nextcloud
@@ -58,7 +69,7 @@
   shell: php occ config:system:set "{{ item.name }}" --value={{ item.value }}
   with_items: "{{ nextcloud_config }}"
 
-- name: Get users
+- name: Register users
   become: true
   become_user: "{{ nextcloud_websrv_user }}"
   args:
