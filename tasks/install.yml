@@ -75,7 +75,7 @@
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:set "{{ item.name }}" --value={{ item.value }}
-  when: (nextcloud_config_status.stdout|from_json).system[item.name] != item.value
+  when: ((nextcloud_config_status.stdout|from_json).system[item.name])|default('_') != item.value
   with_items: "{{ nextcloud_config }}"
 
 - name: Register users
