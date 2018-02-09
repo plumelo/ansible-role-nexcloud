@@ -32,4 +32,3 @@
     group: "{{ nextcloud_path_group }}"
     mode: 0775
     remote_src: yes
-
