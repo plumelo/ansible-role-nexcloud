@@ -32,7 +32,7 @@
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:set trusted_domains 1 --value={{ item }}
-  when: '"{{ item }}" not in nextcloud_occ_domains.stdout'
+  when: 'item not in nextcloud_occ_domains.stdout'
   with_items: "{{ nextcloud_hosts }}"
 
 - name: Clone apps
@@ -58,8 +58,16 @@
     chdir: "{{ nextcloud_path }}"
   shell: php occ app:enable {{ item.name }}
   when: item.name in (nextcloud_apps_status.stdout|from_json).disabled.keys()
-
   with_items: "{{ nextcloud_apps }}"
+
+- name: Register config nextcloud
+  become: true
+  become_user: "{{ nextcloud_websrv_user }}"
+  args:
+    chdir: "{{ nextcloud_path }}"
+  shell: php occ config:list
+  register: nextcloud_config_status
+  changed_when: false
 
 - name: Config nextcloud
   become: true
@@ -67,6 +75,7 @@
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ config:system:set "{{ item.name }}" --value={{ item.value }}
+  when: (nextcloud_config_status.stdout|from_json).system[item.name] != item.value
   with_items: "{{ nextcloud_config }}"
 
 - name: Register users
@@ -86,5 +95,5 @@
   args:
     chdir: "{{ nextcloud_path }}"
   shell: php occ user:add --display-name={{ item.name }} --password-from-env --group={{ item.group|default('users')  }} {{ item.name }}
-  when: '"{{ item.name }}" not in nextcloud_occ_users.stdout'
+  when: item.name not in nextcloud_occ_users.stdout
   with_items: "{{ nextcloud_users }}"
